@@ -1,12 +1,15 @@
+// Auth.tsx
 import { useState } from 'react';
 import { api } from '../lib/api';
 import { useAuthStore } from '../store/auth';
+import { useNavigate } from 'react-router-dom';
 
 export default function Auth() {
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const login = useAuthStore((s) => s.login);
+  const nav = useNavigate();
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -15,7 +18,7 @@ export default function Auth() {
       const res = await api.post(url, { email, password });
       // Expect: { token, user }
       login(res.data);
-      window.location.href = '/questions';
+      nav('/questions'); // ✅ client-side route change
     } catch (err: any) {
       alert(err?.response?.data?.message || 'Auth failed');
     }

@@ -1,4 +1,5 @@
-import { useEffect } from 'react';
+// App.tsx
+import { useEffect, useState } from 'react';
 import { Routes, Route, Link, Navigate } from 'react-router-dom';
 import Auth from './pages/Auth';
 import QuestionsList from './pages/QuestionsList';
@@ -12,7 +13,19 @@ export default function App() {
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
 
-  useEffect(() => { hydrate(); }, [hydrate]);
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    // if hydrate() is async, you can await it; otherwise just call then mark ready
+    const run = async () => {
+      await hydrate(); // ok if non-async, await is harmless
+      setReady(true);
+    };
+    run();
+  }, [hydrate]);
+
+  if (!ready) {
+    return <div className="p-6 text-sm text-gray-600">Loading…</div>;
+  }
 
   return (
     <div className="min-h-dvh">
@@ -56,6 +69,8 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+        {/* catch-all to keep SPA tidy */}
+        <Route path="*" element={<Navigate to="/quiz" replace />} />
       </Routes>
     </div>
   );
